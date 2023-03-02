@@ -47,7 +47,6 @@ describe('Persistent Node Chat Server', () => {
          * your message table, since this is schema-dependent. */
         const queryString = 'SELECT * FROM messages';
         const queryArgs = [];
-        console.log(queryString);
         dbConnection.query(queryString, queryArgs, (err, results) => {
           if (err) {
             throw err;
@@ -57,6 +56,7 @@ describe('Persistent Node Chat Server', () => {
 
           // TODO: If you don't have a column named text, change this test.
           expect(results[0].body).toEqual(message);
+          expect(results[0].roomname).toEqual(roomname);
           done();
         });
       })
@@ -70,6 +70,7 @@ describe('Persistent Node Chat Server', () => {
     // Let's insert a message into the db
     const queryString = 'SELECT * FROM messages';
     const queryArgs = [];
+    const username = 'Valjean';
     const message = 'In mercy\'s name, three days is all I need.';
     const roomname = 'Hello';
     /* TODO: The exact query string and query args to use here
@@ -84,6 +85,7 @@ describe('Persistent Node Chat Server', () => {
         .then((response) => {
           const messageLog = response.data;
           expect(messageLog[0].body).toEqual(message);
+          expect(messageLog[0].id_user).toEqual(1);
           expect(messageLog[0].roomname).toEqual(roomname);
           done();
         })
