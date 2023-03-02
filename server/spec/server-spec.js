@@ -17,12 +17,13 @@ describe('Persistent Node Chat Server', () => {
     dbConnection.connect();
 
     const tablename = 'messages'; // TODO: fill this out
-
+    const tablename1 = 'user'; // TODO: fill this out
     /* Empty the db table before all tests so that multiple tests
      * (or repeated runs of the tests)  will not fail when they should be passing
      * or vice versa */
     dbConnection.query(`truncate ${tablename}`, done);
   }, 6500);
+
 
   afterAll(() => {
     dbConnection.end();
@@ -33,9 +34,10 @@ describe('Persistent Node Chat Server', () => {
     const message = 'In mercy\'s name, three days is all I need.';
     const roomname = 'Hello';
     // Create a user on the chat server database.
-    axios.post(`${API_URL}/user`, { username })
+    axios.post(`${API_URL}/users`, { username })
       .then(() => {
         // Post a message to the node chat server:
+
         return axios.post(`${API_URL}/messages`, { username, message, roomname });
       })
       .then(() => {
@@ -45,7 +47,7 @@ describe('Persistent Node Chat Server', () => {
          * your message table, since this is schema-dependent. */
         const queryString = 'SELECT * FROM messages';
         const queryArgs = [];
-
+        console.log(queryString);
         dbConnection.query(queryString, queryArgs, (err, results) => {
           if (err) {
             throw err;
@@ -59,6 +61,7 @@ describe('Persistent Node Chat Server', () => {
         });
       })
       .catch((err) => {
+        console.log('i got here');
         throw err;
       });
   });
@@ -67,6 +70,8 @@ describe('Persistent Node Chat Server', () => {
     // Let's insert a message into the db
     const queryString = 'SELECT * FROM messages';
     const queryArgs = [];
+    const message = 'In mercy\'s name, three days is all I need.';
+    const roomname = 'Hello';
     /* TODO: The exact query string and query args to use here
      * depend on the schema you design, so I'll leave them up to you. */
     dbConnection.query(queryString, queryArgs, (err) => {
@@ -79,7 +84,7 @@ describe('Persistent Node Chat Server', () => {
         .then((response) => {
           const messageLog = response.data;
           expect(messageLog[0].body).toEqual(message);
-          expect(messageLog[0].id_room).toEqual(roomname);
+          expect(messageLog[0].roomname).toEqual(roomname);
           done();
         })
         .catch((err) => {
