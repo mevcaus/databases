@@ -1,30 +1,43 @@
-var db = require('../db');
+var { User, Message } = require('../db');
 
 module.exports = {
   getAll: function (callback) {
-    // query database
-    db.query('SELECT * FROM messages', (err, messages) => {
-      if (err) {
-        callback(err);
-      } else {
+    Message.sync();
+
+    Message.findAll()
+      .then(messages => {
         callback(null, messages);
-      }
-    });
-    // first arg: the query SELECT *
-    // second argument callback
-    // if err throw err
-    // else do the getall call back on the data
-  }, // a function which produces all the messages
-  create: function (username, message, roomname, callback) {
-    console.log(message);
-    db.query('INSERT INTO messages (id_user, body, roomname) VALUES ((SELECT id FROM user WHERE username = ? LIMIT 1), ?, ?)', [username, message, roomname], (err, result) => {
-      if (err) {
-        console.log(err);
+      })
+      .catch(err => {
         callback(err);
-      } else {
-        console.log('this is my result: \n' + result);
-        callback(null, result);
+      });
+  }, // a function which produces all the messages
+  create: function (usernamex, message, roomnamex, callback) {
+    Message.sync();
+    User.findOne({
+      where: {
+        username: usernamex
       }
-    });
+    })
+      .then(user => {
+        Message.create({
+          id_user: user.dataValues.id,
+          body: `${message}`,
+          roomname: `${roomnamex}`
+        })
+          .then(finish => {
+            console.log('finish here');
+            callback(null, finish);
+          })
+          .catch(err => {
+            console.log(err);
+            callback(err);
+          });
+      })
+      .catch(err => {
+        console.log('err within user.findone')
+        callback(err);
+      });
+
   } // a function which can be used to insert a message into the database
 };

@@ -1,24 +1,28 @@
-var db = require('../db');
+var { User } = require('../db');
 
 module.exports = {
   getAll: function (callback) {
     // query database
-    db.query('SELECT * FROM user', (err, users) => {
-      if (err) {
-        callback(err);
-      } else {
+    User.sync();
+    User.findAll()
+      .then(users => {
         callback(null, users);
-      }
-    });
+      })
+      .catch(err => {
+        callback(err);
+      });
   },
 
   create: function (user, callback) {
-    db.query(`INSERT INTO user (username) VALUES ("${user}")`, (err, result) => {
-      if (err) {
+    User.sync();
+    User.create({
+      username: user
+    })
+      .then(finish => {
+        callback(null, finish);
+      })
+      .catch(err => {
         callback(err);
-      } else {
-        callback(null, result);
-      }
-    });
+      });
   }
 };

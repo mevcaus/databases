@@ -14,6 +14,7 @@ module.exports = {
     var message = req.body.message;
     var roomname = req.body.roomname;
     let username = req.body.username;
+
     models.create(username, message, roomname, (err) => {
       if (err) {
         res.sendStatus(500);
